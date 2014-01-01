@@ -1,11 +1,13 @@
+# TODO: invest-applet not packaged
+
 Summary:	Small applications which embed themselves in the MATE panel
 Name:		mate-applets
-Version:	1.6.1
+Version:	1.6.2
 Release:	1
 License:	GPL v2, FDL
 Group:		X11/Applications
 Source0:	http://pub.mate-desktop.org/releases/1.6/%{name}-%{version}.tar.xz
-# Source0-md5:	56c4570510b776d8da858f55b32482ef
+# Source0-md5:	7a83557afd1a71940cb623d92788ecc4
 Patch0:		%{name}-m4_fix.patch
 URL:		http://www.mate.org/
 BuildRequires:	autoconf
