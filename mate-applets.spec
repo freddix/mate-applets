@@ -2,38 +2,37 @@
 
 Summary:	Small applications which embed themselves in the MATE panel
 Name:		mate-applets
-Version:	1.6.2
+Version:	1.8.0
 Release:	1
 License:	GPL v2, FDL
 Group:		X11/Applications
-Source0:	http://pub.mate-desktop.org/releases/1.6/%{name}-%{version}.tar.xz
-# Source0-md5:	7a83557afd1a71940cb623d92788ecc4
+Source0:	http://pub.mate-desktop.org/releases/1.8/%{name}-%{version}.tar.xz
+# Source0-md5:	ae144e7ef848eb31d814bda1ccafa17a
 Patch0:		%{name}-m4_fix.patch
 URL:		http://www.mate.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	mate-settings-daemon-devel
 BuildRequires:	dbus-glib-devel
 BuildRequires:	gdbm-devel
 BuildRequires:	gettext-devel
-BuildRequires:	mate-desktop-devel
-BuildRequires:	mate-doc-utils
-BuildRequires:	mate-panel-devel
 BuildRequires:	gtk+-devel
 BuildRequires:	intltool
-BuildRequires:	libmatekbd-devel
 BuildRequires:	libgtop-devel
-BuildRequires:	libmateweather-devel
+BuildRequires:	libmatekbd-devel >= 1.8.0
+BuildRequires:	libmateweather-devel >= 1.8.0
 BuildRequires:	libnotify-devel
 BuildRequires:	libtool
 BuildRequires:	libxml2-devel
 BuildRequires:	libxslt-progs
+BuildRequires:	mate-desktop-devel >= 1.8.0
+BuildRequires:	mate-panel-devel
+BuildRequires:	mate-settings-daemon-devel >= 1.8.0
 BuildRequires:	pkg-config
+BuildRequires:	yelp-tools
 Requires(post,postun):	/usr/bin/gtk-update-icon-cache
 Requires(post,postun):	glib-gio-gsettings
 Requires(post,postun):	hicolor-icon-theme
-Requires(post,postun):	rarian
-Requires:	mate-panel
+Requires:	mate-panel >= 1.8.0
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_matehelpdir	%{_datadir}/mate/help
@@ -100,14 +99,13 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 %description -n mate-applet-geyes
 Geyes applet.
 
-%package -n mate-applet-weather
-Summary:	Weather Report applet
+%package -n mate-applet-invest
+Summary:	Invest applet
 Group:		X11/Applications
 Requires:	%{name} = %{epoch}:%{version}-%{release}
-Requires:	xdg-desktop-notification-daemon
 
-%description -n mate-applet-weather
-Weather Report applet.
+%description -n mate-applet-invest
+Invest applet.
 
 %package -n mate-applet-multiload
 Summary:	System Monitor applet
@@ -133,6 +131,15 @@ Requires:	%{name} = %{epoch}:%{version}-%{release}
 %description -n mate-applet-trash
 Trash applet.
 
+%package -n mate-applet-weather
+Summary:	Weather Report applet
+Group:		X11/Applications
+Requires:	%{name} = %{epoch}:%{version}-%{release}
+Requires:	xdg-desktop-notification-daemon
+
+%description -n mate-applet-weather
+Weather Report applet.
+
 %prep
 %setup -q
 %patch0 -p1
@@ -147,15 +154,12 @@ Trash applet.
 %{__glib_gettextize}
 %{__libtoolize}
 %{__intltoolize}
-mate-doc-prepare --copy
 %{__aclocal} -I m4
 %{__autoheader}
 %{__automake}
 %{__autoconf}
 %configure \
-	--disable-schemas-install	\
-	--disable-static		\
-	--enable-mixer-applet		\
+	--disable-static    \
 	--enable-polkit
 %{__make}
 
@@ -165,108 +169,91 @@ rm -rf $RPM_BUILD_ROOT
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT					\
 	accessx_status_iconsdir=%{_iconsdir}/hicolor/48x48/apps	\
-	pythondir=%{py_sitedir}					\
+	pythondir=%{py_scriptdir}					\
 	uidir=%{_datadir}/mate-panel/ui
 
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/MateConf/gsettings/stickynotes-applet.convert
 %{__rm} -r $RPM_BUILD_ROOT%{_datadir}/locale/{ca@valencia,crh,en@shaw,es_*}
+%{__rm} $RPM_BUILD_ROOT%{py_scriptdir}/mate_invest/*.py
 
 %find_lang %{name} --all-name --with-mate
-%find_lang mate-accessx-status --with-mate --with-omf
-%find_lang mate-battstat --with-mate --with-omf
-%find_lang mate-char-palette --with-mate --with-omf
-%find_lang mate-cpufreq-applet --with-mate --with-omf
-%find_lang mate-drivemount --with-mate --with-omf
-%find_lang mate-geyes --with-mate --with-omf
-%find_lang mate-multiload --with-mate --with-omf
-%find_lang mate-stickynotes_applet --with-mate --with-omf
-%find_lang mate-trashapplet --with-mate --with-omf
-%find_lang mateweather --with-mate --with-omf
+%find_lang mate-accessx-status --with-mate
+%find_lang mate-battstat --with-mate
+%find_lang mate-char-palette --with-mate
+%find_lang mate-cpufreq-applet --with-mate
+%find_lang mate-drivemount --with-mate
+%find_lang mate-geyes --with-mate
+%find_lang mate-multiload --with-mate
+%find_lang mate-stickynotes_applet --with-mate
+%find_lang mate-trashapplet --with-mate
+%find_lang mateweather --with-mate
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post
+%update_gsettings_cache
+
+%postun
+%update_gsettings_cache
+
 %post -n mate-applet-accessx-status
-%scrollkeeper_update_post
 %update_icon_cache hicolor
 
 %postun -n mate-applet-accessx-status
-%scrollkeeper_update_postun
 %update_icon_cache hicolor
 
 %post -n mate-applet-battstat
-%scrollkeeper_update_post
 %update_gsettings_cache
 
 %postun -n mate-applet-battstat
-%scrollkeeper_update_postun
 %update_gsettings_cache
 
 %post -n mate-applet-charpicker
-%scrollkeeper_update_post
 %update_icon_cache hicolor
 %update_gsettings_cache
 
 %postun -n mate-applet-charpicker
-%scrollkeeper_update_postun
 %update_icon_cache hicolor
 %update_gsettings_cache
 
 %post -n mate-applet-cpufreq
-%scrollkeeper_update_post
 %update_icon_cache hicolor
 %update_gsettings_cache
 
 %postun -n mate-applet-cpufreq
-%scrollkeeper_update_postun
 %update_icon_cache hicolor
 %update_gsettings_cache
 
-%post -n mate-applet-drivemount
-%scrollkeeper_update_post
-
-%postun -n mate-applet-drivemount
-%scrollkeeper_update_postun
-
 %post -n mate-applet-geyes
-%scrollkeeper_update_post
 %update_icon_cache hicolor
 %update_gsettings_cache
 
 %postun -n mate-applet-geyes
-%scrollkeeper_update_postun
 %update_icon_cache hicolor
 %update_gsettings_cache
 
-%post -n mate-applet-weather
-%scrollkeeper_update_post
+%post -n mate-applet-invest
+%update_icon_cache hicolor
+%update_gsettings_cache
 
-%postun -n mate-applet-weather
-%scrollkeeper_update_postun
+%postun -n mate-applet-invest
+%update_icon_cache hicolor
+%update_gsettings_cache
 
 %post -n mate-applet-multiload
-%scrollkeeper_update_post
 %update_gsettings_cache
 
 %postun -n mate-applet-multiload
-%scrollkeeper_update_postun
 %update_gsettings_cache
 
 %post -n mate-applet-stickynotes
-%scrollkeeper_update_post
 %update_icon_cache hicolor
 %update_gsettings_cache
 
 %postun -n mate-applet-stickynotes
-%scrollkeeper_update_postun
 %update_icon_cache hicolor
 %update_gsettings_cache
-
-%post -n mate-applet-trash
-%scrollkeeper_update_post
-
-%postun -n mate-applet-trash
-%scrollkeeper_update_postun
 
 %files -f %{name}.lang
 %defattr(644,root,root,755)
@@ -275,6 +262,18 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libexecdir}
 %dir %{_datadir}/%{name}
 %dir %{_datadir}/%{name}/builder
+
+%attr(755,root,root) %{_libexecdir}/command-applet
+%{_datadir}/glib-2.0/schemas/org.mate.panel.applet.command.gschema.xml
+%{_datadir}/dbus-1/services/org.mate.panel.applet.CommandAppletFactory.service
+%{_datadir}/mate-panel/applets/org.mate.applets.CommandApplet.mate-panel-applet
+
+%attr(755,root,root) %{_libexecdir}/timer-applet
+%{_datadir}/dbus-1/services/org.mate.panel.applet.TimerAppletFactory.service
+%{_datadir}/glib-2.0/schemas/org.mate.panel.applet.timer.gschema.xml
+%{_datadir}/mate-panel/applets/org.mate.applets.TimerApplet.mate-panel-applet
+
+%{_datadir}/mate-applets/builder/prefs-dialog.ui
 
 %files -n mate-applet-accessx-status -f mate-accessx-status.lang
 %defattr(644,root,root,755)
@@ -336,12 +335,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/mate-panel/ui/geyes-applet-menu.xml
 %{_iconsdir}/hicolor/*/apps/mate-eyes-applet.*
 
-%files -n mate-applet-weather -f mateweather.lang
+%files -n mate-applet-invest
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libexecdir}/mateweather-applet-2
-%{_datadir}/dbus-1/services/org.mate.panel.applet.MateWeatherAppletFactory.service
-%{_datadir}/mate-panel/applets/org.mate.applets.MateWeatherApplet.mate-panel-applet
-%{_datadir}/mate-panel/ui/mateweather-applet-menu.xml
+%attr(755,root,root) %{_bindir}/mate-invest-chart
+%dir %{py_scriptdir}/mate_invest
+%{py_scriptdir}/mate_invest/*.py[co]
+%attr(755,root,root) %{_libexecdir}//invest-applet
+%{_datadir}/dbus-1/services/org.mate.panel.applet.InvestAppletFactory.service
+%{_iconsdir}/hicolor/*/apps/mate-invest-applet.png
+%{_iconsdir}/hicolor/*/apps/mate-invest-applet.svg
+%{_datadir}/mate-applets/builder/financialchart.ui
+%{_datadir}/mate-applets/invest-applet
+%{_datadir}/mate-panel/applets/org.mate.applets.InvestApplet.mate-panel-applet
+%{_datadir}/mate-panel/ui/Invest_Applet.xml
 
 %files -n mate-applet-multiload -f mate-multiload.lang
 %defattr(644,root,root,755)
@@ -369,4 +375,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/services/org.mate.panel.applet.TrashAppletFactory.service
 %{_datadir}/mate-panel/applets/org.mate.applets.TrashApplet.mate-panel-applet
 %{_datadir}/mate-panel/ui/trashapplet-menu.xml
+
+%files -n mate-applet-weather -f mateweather.lang
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libexecdir}/mateweather-applet-2
+%{_datadir}/dbus-1/services/org.mate.panel.applet.MateWeatherAppletFactory.service
+%{_datadir}/mate-panel/applets/org.mate.applets.MateWeatherApplet.mate-panel-applet
+%{_datadir}/mate-panel/ui/mateweather-applet-menu.xml
 
