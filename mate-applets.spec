@@ -3,7 +3,7 @@
 Summary:	Small applications which embed themselves in the MATE panel
 Name:		mate-applets
 Version:	1.8.0
-Release:	1
+Release:	2
 License:	GPL v2, FDL
 Group:		X11/Applications
 Source0:	http://pub.mate-desktop.org/releases/1.8/%{name}-%{version}.tar.xz
