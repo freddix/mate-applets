@@ -1,15 +1,14 @@
-# TODO: invest-applet not packaged
-
 Summary:	Small applications which embed themselves in the MATE panel
 Name:		mate-applets
-Version:	1.8.0
-Release:	2
+Version:	1.8.1
+Release:	1
 License:	GPL v2, FDL
 Group:		X11/Applications
 Source0:	http://pub.mate-desktop.org/releases/1.8/%{name}-%{version}.tar.xz
-# Source0-md5:	ae144e7ef848eb31d814bda1ccafa17a
+# Source0-md5:	01979ea5f4d453ed0a91d3edc1de0eb0
 Patch0:		%{name}-m4_fix.patch
 URL:		http://www.mate.org/
+BuildRequires:	NetworkManager-devel
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	dbus-glib-devel
@@ -159,7 +158,7 @@ Weather Report applet.
 %{__automake}
 %{__autoconf}
 %configure \
-	--disable-static    \
+	--disable-static	\
 	--enable-polkit
 %{__make}
 
@@ -173,7 +172,6 @@ rm -rf $RPM_BUILD_ROOT
 	uidir=%{_datadir}/mate-panel/ui
 
 %{__rm} $RPM_BUILD_ROOT%{_datadir}/MateConf/gsettings/stickynotes-applet.convert
-%{__rm} -r $RPM_BUILD_ROOT%{_datadir}/locale/{ca@valencia,crh,en@shaw,es_*}
 %{__rm} $RPM_BUILD_ROOT%{py_scriptdir}/mate_invest/*.py
 
 %find_lang %{name} --all-name --with-mate
